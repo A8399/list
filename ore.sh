@@ -411,19 +411,13 @@ function start_client(){
 	if [[ -z "$server_ip" ]]; then
 	  echo "IP地址不能为空。"
 	  exit 1
-	fi
-
-	read -p "请输入挖矿线程数: " threads
-	# 有效threads检测
-	if [[ -z "$threads" ]]; then
-	  echo "threads不能为空。"
-	  exit 1
+	
 	fi
 
 	# 配置文件路径
 	config_file=$HOME/ore-hq-client/id.json
 	cd $HOME/ore-hq-client/target/release
-	screen -dmS ore-hq-client ./ore-hq-client --url $server_ip:3000 --keypair $config_file -u mine --threads $threads
+	screen -dmS ore-hq-client ./ore-hq-client --url $server_ip:3000 --keypair $config_file -u mine
 }
 
 # 部署集群客户端
@@ -432,13 +426,6 @@ function install_client(){
 	# 有效IP检测
 	if [[ -z "$server_ip" ]]; then
 	  echo "IP地址不能为空。"
-	  exit 1
-	fi
-
-	read -p "请输入挖矿线程数: " threads
-	# 有效threads检测
-	if [[ -z "$threads" ]]; then
-	  echo "threads不能为空。"
 	  exit 1
 	fi
 
@@ -463,7 +450,7 @@ function install_client(){
 	cargo build --release
 	cd $HOME/ore-hq-client/target/release
 	./ore-hq-client --url $server_ip:3000 --keypair $config_file -u signup
-	screen -dmS ore-hq-client ./ore-hq-client --url $server_ip:3000 --keypair $config_file -u mine --threads $threads
+	screen -dmS ore-hq-client ./ore-hq-client --url $server_ip:3000 --keypair $config_file -u mine
 
 	echo "集群客户端已启动..."
 
