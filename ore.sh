@@ -439,7 +439,7 @@ function install_client(){
 	basic_env
 
 	cd $HOME
-	git clone https://github.com/Kriptikz/ore-hq-client
+	git clone https://github.com/A8399/ore-hq-client.git
 	cd $HOME/ore-hq-client
 
 	# 生成配置文件路径
