@@ -423,7 +423,7 @@ function start_client(){
 	# 配置文件路径
 	config_file=$HOME/ore-hq-client/id.json
 	cd $HOME/ore-hq-client/target/release
-	screen -dmS ore-hq-client ./ore-hq-client --url $server_ip:3000 --keypair $config_file -u mine
+	screen -dmS ore-hq-client ./ore-hq-client --url $server_ip:3000 --keypair $config_file -u mine --threads $threads
 }
 
 # 部署集群客户端
@@ -463,7 +463,7 @@ function install_client(){
 	cargo build --release
 	cd $HOME/ore-hq-client/target/release
 	./ore-hq-client --url $server_ip:3000 --keypair $config_file -u signup
-	screen -dmS ore-hq-client ./ore-hq-client --url $server_ip:3000 --keypair $config_file -u mine
+	screen -dmS ore-hq-client ./ore-hq-client --url $server_ip:3000 --keypair $config_file -u mine --threads $threads
 
 	echo "集群客户端已启动..."
 
