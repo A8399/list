@@ -49,40 +49,40 @@ function mysql_install(){
 	else
 	    echo "Docker is not installed. Installing Docker..."
 	    # 更新apt包索引
-	    sudo apt-get update
+	    apt-get update
 	    # 安装包以允许apt通过HTTPS使用仓库
-	    sudo apt-get install -y \
+	    apt-get install -y \
 	        apt-transport-https \
 	        ca-certificates \
 	        curl \
 	        software-properties-common
 	    # 添加Docker的官方GPG密钥
-	    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+	    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 	    # 设置稳定仓库
-	    sudo add-apt-repository \
+	    add-apt-repository \
 	        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
 	        $(lsb_release -cs) \
 	        stable"
 	    # 再次更新apt包索引
-	    sudo apt-get update -y
+	    apt-get update -y
 	    # 安装最新版本的Docker CE
-	    sudo apt-get install -y docker-ce
+	    apt-get install -y docker-ce
 	    # 输出Docker的版本号来验证安装
 	    docker --version
 	fi
 
-	#sudo docker search mysql
-	sudo docker pull mysql:8.0
-	sudo docker run -p 3307:3306 --name mysql -e MYSQL_ROOT_PASSWORD=$1 -d mysql:8.0
-	sudo apt install mysql-client-core-8.0
+	#docker search mysql
+	docker pull mysql:8.0
+	docker run -p 3307:3306 --name mysql -e MYSQL_ROOT_PASSWORD=$1 -d mysql:8.0
+	apt install mysql-client-core-8.0
 
 }
 
 # 安装基础环境
 function basic_env(){
 	# 更新软件包
-	sudo apt update && sudo apt upgrade -y
-	sudo apt install -y curl build-essential jq git libssl-dev pkg-config screen pkg-config libmysqlclient-dev mysql-server
+	apt update && apt upgrade -y
+	apt install -y curl build-essential jq git libssl-dev pkg-config screen pkg-config libmysqlclient-dev mysql-server
 	
 	# 安装 Rust 和 Cargo
 	echo "正在安装 Rust 和 Cargo..."
