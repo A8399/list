@@ -60,40 +60,40 @@ function install_node() {
 	    echo "当前swap大小不足。正在将swap大小设置为 $desired_swap_size GB..."
 	
 	    # 关闭所有swap分区
-	    sudo swapoff -a
+	    swapoff -a
 	
 	    # 分配新的swap文件
-	    sudo fallocate -l ${desired_swap_size}G /swapfile
+	    fallocate -l ${desired_swap_size}G /swapfile
 	
 	    # 设置正确的文件权限
-	    sudo chmod 600 /swapfile
+	    chmod 600 /swapfile
 	
 	    # 设置swap分区
-	    sudo mkswap /swapfile
+	    mkswap /swapfile
 	
 	    # 启用swap分区
-	    sudo swapon /swapfile
+	    swapon /swapfile
 	
 	    # 添加swap分区至fstab，确保开机时自动挂载
-	    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+	    echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab
 	
 	    echo "Swap大小已设置为 $desired_swap_size GB。"
 	else
 	    echo "当前swap大小已经满足要求或大于等于32GB，无需改动。"
 	fi
 	
-    sudo apt update
-    sudo apt install -y git ufw bison screen binutils gcc make bsdmainutils jq coreutils unzip zip
+    apt update
+    apt install -y git ufw bison screen binutils gcc make bsdmainutils jq coreutils unzip zip
 
 	# 设置缓存
-	echo -e "\n\n# set for Quil" | sudo tee -a /etc/sysctl.conf
-	echo "net.core.rmem_max=600000000" | sudo tee -a /etc/sysctl.conf
-	echo "net.core.wmem_max=600000000" | sudo tee -a /etc/sysctl.conf
-	sudo sysctl -p
+	echo -e "\n\n# set for Quil" | tee -a /etc/sysctl.conf
+	echo "net.core.rmem_max=600000000" | tee -a /etc/sysctl.conf
+	echo "net.core.wmem_max=600000000" | tee -a /etc/sysctl.conf
+	sysctl -p
 
 	# 安装 go
 	wget https://go.dev/dl/go1.22.4.linux-amd64.tar.gz
-	sudo tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
+	tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
 	export PATH=$PATH:/usr/local/go/bin
 	echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 	source ~/.bashrc
@@ -110,7 +110,7 @@ function install_node() {
 	git pull
 	git checkout release
 	
-    sudo tee /lib/systemd/system/ceremonyclient.service > /dev/null <<EOF
+    tee /lib/systemd/system/ceremonyclient.service > /dev/null <<EOF
 [Unit]
 Description=Ceremony Client Go App Service
 [Service]
@@ -124,9 +124,9 @@ ExecStart=$HOME/ceremonyclient/node/release_autorun.sh
 WantedBy=multi-user.target
 EOF
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable ceremonyclient
-    sudo systemctl start ceremonyclient
+    systemctl daemon-reload
+    systemctl enable ceremonyclient
+    systemctl start ceremonyclient
 
 	rm $HOME/go/bin/qclient
 	cd $HOME/ceremonyclient/client
@@ -140,13 +140,13 @@ EOF
 # 备份节点
 function backup_key(){
     # 文件路径
-    sudo chown -R $USER:$USER $HOME/ceremonyclient/node/.config/
+    chown -R $USER:$USER $HOME/ceremonyclient/node/.config/
     cd $HOME/ceremonyclient/node/
     # 检查是否安装了zip
 	if ! command -v zip &> /dev/null; then
 	    echo "zip is not installed. Installing now..."
-	    sudo apt-get update
-	    sudo apt-get install zip -y
+	    apt-get update
+	    apt-get install zip -y
 	fi
 	
 	# 创建压缩文件
@@ -157,31 +157,31 @@ function backup_key(){
 
 # 查看日志
 function view_logs(){
-	sudo journalctl -u ceremonyclient.service -f --no-hostname -o cat
+	journalctl -u ceremonyclient.service -f --no-hostname -o cat
 }
 
 # 查看节点状态
 function view_status(){
-	sudo systemctl status ceremonyclient
+	systemctl status ceremonyclient
 }
 
 # 停止节点
 function stop_node(){
-	sudo systemctl stop ceremonyclient
-	ps aux | grep 'node-' | grep -v grep | awk '{print $2}' | sudo xargs kill -9
+	systemctl stop ceremonyclient
+	ps aux | grep 'node-' | grep -v grep | awk '{print $2}' | xargs kill -9
 	echo "quil 节点已停止"
 }
 
 # 启动节点
 function start_node(){
-	sudo systemctl start ceremonyclient
+	systemctl start ceremonyclient
 	echo "quil 节点已启动"
 }
 
 # 卸载节点
 function uninstall_node(){
     #screen -S quil -X quit
-    sudo systemctl stop ceremonyclient
+    systemctl stop ceremonyclient
     screen -ls | grep -Po '\t\d+\.quil\t' | grep -Po '\d+' | xargs -r kill
 	rm -rf $HOME/ceremonyclient
 	rm -rf $HOME/check_and_restart.sh
@@ -198,7 +198,7 @@ function download_snap(){
 		if ! command -v unzip &> /dev/null
 		then
 		    # 安装unzip
-		    sudo apt-get update && sudo apt-get install -y unzip
+		    apt-get update && apt-get install -y unzip
 		    if [ $? -eq 0 ]; then
 		        echo "unzip has been successfully installed."
 		    else
@@ -209,7 +209,7 @@ function download_snap(){
 		    echo "unzip is already installed."
 		fi
         stop_node
-        sudo unzip store.zip -d $HOME/ceremonyclient/node/.config/
+        unzip store.zip -d $HOME/ceremonyclient/node/.config/
     	start_node
     	#echo "快照已更新，超过30分钟高度没有增加请运行【10.更新REPAIR】文件"
     else
@@ -237,7 +237,7 @@ function update_repair(){
 
 # 查询余额
 function check_balance(){
-	sudo chown -R $USER:$USER $HOME/ceremonyclient/node/.config/
+	chown -R $USER:$USER $HOME/ceremonyclient/node/.config/
 	check_grpc
 	cd ~/ceremonyclient/node
     current_time=$(date "+%Y-%m-%d %H:%M:%S")
@@ -249,7 +249,7 @@ function check_balance(){
 
 # 安装gRPC
 function install_grpc(){
-	sudo chown -R $USER:$USER $HOME/ceremonyclient/node/.config/
+	chown -R $USER:$USER $HOME/ceremonyclient/node/.config/
 	# 检查当前 Go 版本
 	current_go_version=$(go version | awk '{print $3}')
 	
@@ -275,7 +275,7 @@ check_grpc() {
 	cpu_usage=$(top -bn 1 | grep "%Cpu(s)" | awk '{print $2}')
 	if (( $(echo "$cpu_usage > 80" | bc -l) )); then
 		echo "quil已启动"
-		if ! sudo lsof -i :8337 > /dev/null; then
+		if ! lsof -i :8337 > /dev/null; then
 			echo "grpc未启用，正在安装"
 			install_grpc
 		fi
@@ -288,7 +288,7 @@ check_grpc() {
 
 # 健康状态
 function check_heal(){
-	sudo journalctl -u ceremonyclient.service --no-hostname --since "today" | awk '/"current_frame"/ {print $1, $2, $3, $7}'
+	journalctl -u ceremonyclient.service --no-hostname --since "today" | awk '/"current_frame"/ {print $1, $2, $3, $7}'
 	echo "提取了当天的日志，如果current_frame一直在增加，说明程序运行正常"
 }
 
@@ -306,8 +306,8 @@ function cpu_limited_rate(){
     echo "正在重启，请稍等..."
     
     stop_node
-    sudo rm -f /lib/systemd/system/ceremonyclient.service
-    sudo tee /lib/systemd/system/ceremonyclient.service > /dev/null <<EOF
+    rm -f /lib/systemd/system/ceremonyclient.service
+    tee /lib/systemd/system/ceremonyclient.service > /dev/null <<EOF
 [Unit]
 Description=Ceremony Client Go App Service
 [Service]
@@ -322,17 +322,17 @@ CPUQuota=$limit_rate%
 WantedBy=multi-user.target
 EOF
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable ceremonyclient
-    sudo systemctl start ceremonyclient
-    sudo chown -R $USER:$USER $HOME/ceremonyclient/node/.config/
+    systemctl daemon-reload
+    systemctl enable ceremonyclient
+    systemctl start ceremonyclient
+    chown -R $USER:$USER $HOME/ceremonyclient/node/.config/
     echo "quil 节点已启动"
 }
 
 # contabo
 function contabo(){
-	echo "DNS=8.8.8.8 8.8.4.4" | sudo tee -a /etc/systemd/resolved.conf > /dev/null
-	sudo systemctl restart systemd-resolved
+	echo "DNS=8.8.8.8 8.8.4.4" | tee -a /etc/systemd/resolved.conf > /dev/null
+	systemctl restart systemd-resolved
 	echo "已修复contabo网络"
 }
 
